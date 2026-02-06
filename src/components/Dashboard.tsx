@@ -12,10 +12,11 @@ import { TrendChart } from "@/components/TrendChart";
 type RangeMode = "week" | "month";
 
 export function Dashboard() {
-  const { checkins, hasHydrated } = useCheckInStore((s) => ({
-    checkins: s.checkins,
-    hasHydrated: s.hasHydrated,
-  }));
+  // Important: avoid returning a new object from the selector.
+  // Next.js server-renders Client Components, and Zustand uses useSyncExternalStore.
+  // An unstable snapshot (new object each call) can trigger an infinite loop.
+  const checkins = useCheckInStore((s) => s.checkins);
+  const hasHydrated = useCheckInStore((s) => s.hasHydrated);
 
   const [range, setRange] = useState<RangeMode>("week");
 

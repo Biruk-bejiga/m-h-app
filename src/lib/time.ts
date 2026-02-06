@@ -14,7 +14,6 @@ export function toDayKey(iso: string) {
 
 export function buildDailySeries(checkins: CheckIn[], days: number): ChartPoint[] {
   const now = new Date();
-  const start = startOfDay(subDays(now, days - 1));
 
   const sorted = [...checkins].sort(
     (a, b) => +new Date(a.createdAt) - +new Date(b.createdAt)

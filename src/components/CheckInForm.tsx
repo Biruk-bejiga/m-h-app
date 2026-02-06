@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import type { Resolver } from "react-hook-form";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,21 +13,29 @@ import { useCheckInStore } from "@/store/checkins";
 
 const schema = z.object({
   sleepHours: z
-    .number({ invalid_type_error: "Enter a number" })
+    .number({ message: "Enter a number" })
+    .refine((v) => Number.isFinite(v), "Enter a number")
     .min(0, "Must be ≥ 0")
     .max(24, "Must be ≤ 24"),
   socialActivity: z.enum(["low", "medium", "high"]),
   screenTimeHours: z
-    .number({ invalid_type_error: "Enter a number" })
+    .number({ message: "Enter a number" })
+    .refine((v) => Number.isFinite(v), "Enter a number")
     .min(0, "Must be ≥ 0")
     .max(24, "Must be ≤ 24"),
-  moodRating: z
-    .union([z.number().min(1).max(5), z.nan()])
-    .optional()
-    .transform((v) => (typeof v === "number" && !Number.isNaN(v) ? v : undefined)),
+  moodRating: z.union([
+    z
+      .number({ message: "Enter a number" })
+      .refine((v) => Number.isFinite(v), "Enter a number")
+      .min(1, "Must be between 1 and 5")
+      .max(5, "Must be between 1 and 5"),
+    z.undefined(),
+  ]),
 });
 
-type FormValues = z.infer<typeof schema>;
+type FormValues = Omit<z.infer<typeof schema>, "moodRating"> & {
+  moodRating?: number;
+};
 
 function fieldIds(name: string) {
   return { inputId: name, errorId: `${name}-error`, hintId: `${name}-hint` };
@@ -44,7 +53,7 @@ export function CheckInForm() {
     formState: { errors, isValid },
     reset,
   } = useForm<FormValues>({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(schema) as unknown as Resolver<FormValues>,
     mode: "onChange",
     defaultValues: {
       sleepHours: 7,
@@ -64,7 +73,7 @@ export function CheckInForm() {
     });
   }, [values.sleepHours, values.socialActivity, values.screenTimeHours, values.moodRating]);
 
-  const onSubmit = handleSubmit(async (data) => {
+  const onSubmit = handleSubmit(async (data: FormValues) => {
     setSubmitError(null);
     setSubmitting(true);
 
@@ -130,7 +139,6 @@ export function CheckInForm() {
             min={0}
             max={24}
             aria-describedby={`${sleep.hintId} ${errors.sleepHours ? sleep.errorId : ""}`}
-            aria-invalid={!!errors.sleepHours}
             className="mt-2 w-full rounded-lg bg-slate-950/40 px-3 py-2 text-sm text-slate-50 ring-1 ring-white/10 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-400"
             {...register("sleepHours", { valueAsNumber: true })}
           />
@@ -156,7 +164,6 @@ export function CheckInForm() {
             min={0}
             max={24}
             aria-describedby={`${screen.hintId} ${errors.screenTimeHours ? screen.errorId : ""}`}
-            aria-invalid={!!errors.screenTimeHours}
             className="mt-2 w-full rounded-lg bg-slate-950/40 px-3 py-2 text-sm text-slate-50 ring-1 ring-white/10 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-400"
             {...register("screenTimeHours", { valueAsNumber: true })}
           />
@@ -203,7 +210,9 @@ export function CheckInForm() {
             placeholder="Leave blank"
             aria-describedby={mood.hintId}
             className="mt-2 w-full rounded-lg bg-slate-950/40 px-3 py-2 text-sm text-slate-50 ring-1 ring-white/10 placeholder:text-slate-500 focus:ring-2 focus:ring-blue-400"
-            {...register("moodRating", { valueAsNumber: true })}
+            {...register("moodRating", {
+              setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
+            })}
           />
         </div>
       </div>

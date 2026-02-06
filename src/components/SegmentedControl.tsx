@@ -11,36 +11,43 @@ export function SegmentedControl<T extends string>({
   options: Option<T>[];
   onChange: (value: T) => void;
 }) {
+  const name = `seg-${label.toLowerCase().replace(/\s+/g, "-")}`;
+
   return (
-    <div className="flex items-center gap-3">
-      <span className="text-sm text-slate-300" id="seg-label">
-        {label}
-      </span>
-      <div
-        role="radiogroup"
-        aria-labelledby="seg-label"
-        className="inline-flex rounded-lg bg-white/5 p-1 ring-1 ring-white/10"
-      >
+    <fieldset className="flex items-center gap-3">
+      <legend className="text-sm text-slate-300">{label}</legend>
+
+      <div className="inline-flex rounded-lg bg-white/5 p-1 ring-1 ring-white/10">
         {options.map((opt) => {
           const active = opt.value === value;
           return (
-            <button
+            <label
               key={opt.value}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => onChange(opt.value)}
-              className={`rounded-md px-3 py-1.5 text-sm transition ${
-                active
-                  ? "bg-white/10 text-white"
-                  : "text-slate-300 hover:bg-white/5 hover:text-white"
-              }`}
+              className="cursor-pointer"
+              aria-label={`${label}: ${opt.label}`}
             >
-              {opt.label}
-            </button>
+              <input
+                className="peer sr-only"
+                type="radio"
+                name={name}
+                value={opt.value}
+                checked={active}
+                onChange={() => onChange(opt.value)}
+              />
+              <span
+                className={
+                  "inline-flex rounded-md px-3 py-1.5 text-sm transition " +
+                  (active
+                    ? "bg-white/10 text-white"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white")
+                }
+              >
+                {opt.label}
+              </span>
+            </label>
           );
         })}
       </div>
-    </div>
+    </fieldset>
   );
 }
