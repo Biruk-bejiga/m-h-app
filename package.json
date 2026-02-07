@@ -10,8 +10,12 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@upstash/ratelimit": "^2.0.5",
+    "@upstash/redis": "^1.35.3",
     "date-fns": "^4.1.0",
+    "jose": "^5.10.0",
     "next": "16.1.0",
+    "pg": "^8.13.3",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-hook-form": "^7.71.1",
