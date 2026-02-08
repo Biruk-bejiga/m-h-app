@@ -18,6 +18,11 @@ CREATE TABLE IF NOT EXISTS users (
   status text NOT NULL DEFAULT 'active'
 );
 
+-- Ensure a given OAuth account maps to a single user
+CREATE UNIQUE INDEX IF NOT EXISTS users_auth_provider_subject_ux
+  ON users(auth_provider, auth_subject)
+  WHERE auth_provider IS NOT NULL AND auth_subject IS NOT NULL;
+
 CREATE TABLE IF NOT EXISTS daily_logs (
   id uuid PRIMARY KEY,
   user_id uuid NOT NULL REFERENCES users(id) ON DELETE CASCADE,
