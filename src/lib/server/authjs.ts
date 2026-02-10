@@ -13,22 +13,23 @@ export const {
   const googleId = process.env.AUTH_GOOGLE_ID;
   const googleSecret = process.env.AUTH_GOOGLE_SECRET;
 
-  if (!secret) {
-    throw new Error("NEXTAUTH_SECRET is not set");
-  }
-  if (!googleId || !googleSecret) {
-    throw new Error("Google OAuth is not configured (AUTH_GOOGLE_ID/AUTH_GOOGLE_SECRET)");
-  }
+  // Important: do not throw here. Next dev/build may evaluate this module during compilation.
+  // If env is missing, we return a config with zero providers; OAuth routes will respond
+  // but sign-in will not be available until env is configured.
+  const providers =
+    googleId && googleSecret
+      ? [
+          Google({
+            clientId: googleId,
+            clientSecret: googleSecret,
+          }),
+        ]
+      : [];
 
   return {
     secret,
     session: { strategy: "jwt" },
-    providers: [
-      Google({
-        clientId: googleId,
-        clientSecret: googleSecret,
-      }),
-    ],
+    providers,
     callbacks: {
       async jwt({ token, account, profile }) {
         // When signing in, stash provider subject so our bridge endpoints can read it.
