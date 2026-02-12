@@ -2,6 +2,7 @@ import Link from "next/link";
 import type { PropsWithChildren } from "react";
 
 import { Container } from "@/components/Container";
+import { AuthControls } from "@/components/AuthControls";
 
 export function AppShell({ children }: PropsWithChildren) {
   return (
@@ -30,6 +31,8 @@ export function AppShell({ children }: PropsWithChildren) {
               >
                 Daily Check-In
               </Link>
+
+              <AuthControls />
             </nav>
           </div>
         </Container>
