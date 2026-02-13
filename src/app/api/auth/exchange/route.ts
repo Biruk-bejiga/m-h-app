@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getServerSession } from "next-auth/next";
-
-import { authOptions } from "@/lib/server/authjs";
+import { auth } from "@/lib/server/authjs";
 import { getClientIp, setSessionCookies } from "@/lib/server/auth";
 import { rateLimit } from "@/lib/server/rateLimit";
 import { createUserFromAuth, getUserByAuth } from "@/lib/server/repos/users";
@@ -17,7 +15,7 @@ export async function POST() {
     );
   }
 
-  const session = await getServerSession(authOptions);
+  const session = await auth();
   if (!session) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
@@ -31,7 +29,7 @@ export async function POST() {
 
   if (!provider || !providerAccountId) {
     return NextResponse.json(
-      { error: "Missing OAuth subject in session (is Google enabled/configured?)" },
+      { error: "Missing OAuth subject in session" },
       { status: 400 }
     );
   }
