@@ -1,8 +1,6 @@
 import { NextResponse } from "next/server";
 
-import { getServerSession } from "next-auth/next";
-
-import { authOptions } from "@/lib/server/authjs";
+import { auth } from "@/lib/server/authjs";
 import { getClientIp } from "@/lib/server/auth";
 import { ensureSession } from "@/lib/server/ensureSession";
 import { rateLimit } from "@/lib/server/rateLimit";
@@ -22,7 +20,7 @@ export async function POST() {
   const appSession = await ensureSession();
 
   // Require a valid Auth.js session
-  const oauthSession = await getServerSession(authOptions);
+  const oauthSession = await auth();
   if (!oauthSession) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
